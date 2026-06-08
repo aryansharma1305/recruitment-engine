@@ -1,26 +1,16 @@
-import re
 from collections import Counter
 from datetime import datetime
 from typing import Dict, List
 
+from config import CONSULTING_FIRMS
 from pipeline.loader import safe_career, safe_profile, safe_signals, safe_skills
-
-
-CONSULTING_FIRMS = {
-    "tcs", "infosys", "wipro", "accenture", "cognizant",
-    "capgemini", "hcl", "tech mahindra", "mphasis", "ltimindtree",
-}
+from pipeline.text_utils import norm
 
 TECH_TITLE_TERMS = {
     "ai", "ml", "machine learning", "nlp", "data scientist", "data engineer",
     "software", "backend", "platform", "search", "ranking", "recommendation",
     "applied scientist", "research engineer", "cloud",
 }
-
-
-def norm(s: str) -> str:
-    return re.sub(r"\s+", " ", str(s or "").lower().strip())
-
 
 def profile_text(candidate: Dict) -> str:
     profile = safe_profile(candidate)

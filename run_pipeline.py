@@ -78,8 +78,8 @@ def phase2_semantic_score(candidates, jd_text, backend, top_k):
     return ranked
 
 
-def phase4_build_graph(candidates, fraud_scores, seed_ids):
-    print(f"\n[Phase 4] Building GraphRAG knowledge graph")
+def phase3_build_graph(candidates, fraud_scores, seed_ids):
+    print(f"\n[Phase 3] Building GraphRAG knowledge graph")
     graph = CandidateGraph()
     for c in tqdm(candidates, desc="Graph build", unit="node"):
         cid = get_cid(c)
@@ -95,8 +95,8 @@ def phase4_build_graph(candidates, fraud_scores, seed_ids):
     return boosts
 
 
-def phase5_rank(features, semantic_results, graph_boosts, top_n):
-    print(f"\n[Phase 5] Ranking (top {top_n})")
+def phase4_rank(features, semantic_results, graph_boosts, top_n):
+    print(f"\n[Phase 4] Ranking (top {top_n})")
     sims     = {cid: sim for cid, sim in semantic_results}
     all_recs = list(features.values())
     ranked   = rank(all_recs, sims, graph_boosts)
@@ -105,8 +105,8 @@ def phase5_rank(features, semantic_results, graph_boosts, top_n):
     return top, sims
 
 
-def phase6_explain_and_write(top_ranked, features, sims, fraud_info, output_csv, top_n=FINAL_N):
-    print(f"\n[Phase 6] Generating explanations for top {top_n}")
+def phase5_explain_and_write(top_ranked, features, sims, fraud_info, output_csv, top_n=FINAL_N):
+    print(f"\n[Phase 5] Generating explanations for top {top_n}")
     top_cids  = [cid for cid, _ in top_ranked[:top_n]]
     top_recs  = [features[cid] for cid in top_cids if cid in features]
     top_sims  = {cid: sims.get(cid, 0.0) for cid in top_cids}
@@ -146,12 +146,12 @@ def main():
 
     if args.use_graph:
         seed_ids = {cid for cid, _ in semantic_results[:500]}
-        graph_boosts = phase4_build_graph(candidates, fraud_scores, seed_ids)
+        graph_boosts = phase3_build_graph(candidates, fraud_scores, seed_ids)
     else:
         print("\n[Phase 3] Graph expansion skipped (use --use-graph to enable experimental boost)")
         graph_boosts = {}
 
-    top_ranked, sims = phase5_rank(features, semantic_results, graph_boosts, top_n=TOP_N_RANK)
+    top_ranked, sims = phase4_rank(features, semantic_results, graph_boosts, top_n=TOP_N_RANK)
 
     # Save top 500 checkpoint
     with open(TOP500_CSV, "w", newline="", encoding="utf-8") as fh:
@@ -160,7 +160,7 @@ def main():
         for cid, s in top_ranked:
             writer.writerow([cid, round(s / 100, 4)])
 
-    phase6_explain_and_write(top_ranked, features, sims, fraud_info, args.output_csv)
+    phase5_explain_and_write(top_ranked, features, sims, fraud_info, args.output_csv)
 
     elapsed = time.time() - t0
     print(f"\n✓ Done in {elapsed:.1f}s — output: {args.output_csv}")

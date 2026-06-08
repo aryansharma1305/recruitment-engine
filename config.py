@@ -60,7 +60,6 @@ WEIGHTS = {
     "availability":      0.03,
     "location_logistics": 0.02,
     "education":         0.01,
-    "certification":     0.00,
 }
 
 JD_SKILL_BUCKETS = {
@@ -202,19 +201,6 @@ RELEVANT_EDU_FIELDS = {
     "data science", "information technology", "statistics",
     "mathematics", "computational", "software engineering",
     "electronics", "electrical engineering",
-}
-
-AI_CERTS = {
-    "aws certified machine learning",
-    "aws machine learning specialty",
-    "google professional machine learning engineer",
-    "tensorflow developer certificate",
-    "deep learning specialization",
-    "machine learning specialization",
-    "gcp professional data engineer",
-    "azure ai engineer",
-    "databricks certified",
-    "nvidia deep learning",
 }
 
 BEHAVIORAL_W = {

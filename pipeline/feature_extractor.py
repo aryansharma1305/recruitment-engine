@@ -1,4 +1,3 @@
-import re
 import sys
 import os
 from datetime import datetime
@@ -7,13 +6,14 @@ from typing import Dict, List, Tuple
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from config import (
     JD_CORE_SKILLS, JD_SKILL_BUCKETS, SKILL_ALIASES, TITLE_SCORES, CONSULTING_FIRMS,
-    RELEVANT_EDU_FIELDS, AI_CERTS, EXP_MIN, EXP_IDEAL, EXP_MAX, BEHAVIORAL_W,
+    RELEVANT_EDU_FIELDS, EXP_MIN, EXP_IDEAL, EXP_MAX, BEHAVIORAL_W,
 )
-from pipeline.loader import safe_skills, safe_career, safe_education, safe_certs, safe_signals, safe_profile
+from pipeline.loader import safe_skills, safe_career, safe_education, safe_signals, safe_profile
 from pipeline.evidence import (
     all_text, applied_ml_years, availability_score, career_text, company_mix,
     current_title_is_technical, shipped_system_score, title_switching,
 )
+from pipeline.text_utils import norm as _norm
 
 try:
     from rapidfuzz import fuzz, process as rfprocess
@@ -22,10 +22,6 @@ except ImportError:
     _FUZZY = False
 
 _PROF_W = {"expert": 1.0, "advanced": 0.80, "intermediate": 0.55, "beginner": 0.25}
-
-
-def _norm(s: str) -> str:
-    return re.sub(r"\s+", " ", s.lower().strip())
 
 
 def _canonical(name: str) -> str:
@@ -345,17 +341,6 @@ def behavioral(candidate: Dict) -> float:
     return round(min(100.0, total), 2)
 
 
-def certification(candidate: Dict) -> float:
-    count = 0.0
-    for cert in safe_certs(candidate):
-        blob = _norm(cert.get("name", "") + " " + cert.get("issuer", ""))
-        if any(_norm(ac) in blob for ac in AI_CERTS):
-            count += 1
-        elif any(kw in blob for kw in ("machine learning", "deep learning", "nlp", "ai ")):
-            count += 0.5
-    return round(min(100.0, count * 50), 2)
-
-
 def extract(candidate: Dict) -> Dict:
     profile  = safe_profile(candidate)
     sig      = safe_signals(candidate)
@@ -378,7 +363,6 @@ def extract(candidate: Dict) -> Dict:
         "fit_penalty":      fit_penalty(candidate),
         "education":       education(candidate),
         "behavioral":      behavioral(candidate),
-        "certification":   certification(candidate),
         "n_matched_skills": n_sk,
         "github":          sig.get("github_activity_score", -1),
         "open_to_work":    sig.get("open_to_work_flag", False),

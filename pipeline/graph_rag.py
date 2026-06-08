@@ -1,4 +1,3 @@
-import re
 import sys
 import os
 from collections import defaultdict
@@ -8,6 +7,7 @@ import networkx as nx
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from pipeline.loader import safe_skills, safe_career, safe_signals, safe_profile
+from pipeline.text_utils import norm as _norm
 from config import FRAUD_CUTOFF, JD_CORE_SKILLS, SKILL_ALIASES
 
 try:
@@ -17,11 +17,7 @@ except ImportError:
     _FUZZY = False
 
 
-_JD_SKILLS_NORM = {re.sub(r"\s+", " ", s.lower().strip()) for s in JD_CORE_SKILLS}
-
-
-def _norm(s: str) -> str:
-    return re.sub(r"\s+", " ", s.lower().strip())
+_JD_SKILLS_NORM = {_norm(s) for s in JD_CORE_SKILLS}
 
 
 def _canonical(name: str) -> str:

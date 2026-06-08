@@ -1,4 +1,3 @@
-import re
 import sys
 import os
 from datetime import datetime
@@ -6,11 +5,12 @@ from collections import Counter
 from typing import Dict, List, Tuple
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+from config import CONSULTING_FIRMS as _CONSULT
 from pipeline.loader import safe_profile, safe_skills, safe_career, safe_education, safe_signals
 from pipeline.evidence import applied_ml_years, current_title_is_technical, shipped_system_score
+from pipeline.text_utils import norm as _norm
 
 _CSUITE = {"cto", "ceo", "coo", "cmo", "chief", "vp of", "vice president", "director of"}
-_CONSULT = {"tcs", "infosys", "wipro", "accenture", "cognizant", "capgemini", "hcl", "tech mahindra"}
 _AI_KEYWORDS = {
     "rag", "llm", "vector", "embedding", "embeddings", "pinecone", "weaviate", "qdrant",
     "milvus", "faiss", "langchain", "openai", "fine-tuning", "lora", "qlora",
@@ -20,11 +20,6 @@ _NON_TECH_TITLES = {
     "marketing manager", "hr manager", "accountant", "graphic designer", "content writer",
     "sales executive", "operations manager", "customer support", "project manager",
 }
-
-
-def _norm(s: str) -> str:
-    return re.sub(r"\s+", " ", s.lower().strip())
-
 
 def _career_months(career: List[Dict]) -> float:
     return sum(int(j.get("duration_months", 0)) for j in career) / 12.0

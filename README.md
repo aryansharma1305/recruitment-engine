@@ -72,7 +72,7 @@ The default path is CPU-only and local:
 - deterministic ranking tie-breaks
 - official CSV validator passes
 
-Hosted integrations are kept optional and disabled by default.
+Hosted integrations are optional only. The submitted ranking path does not call Pinecone or any hosted LLM; the Pinecone helper code is kept as future scaffolding and stays outside the default CLI flow.
 
 ## Project Layout
 

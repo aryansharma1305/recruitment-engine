@@ -15,7 +15,6 @@ def score(features: Dict, semantic_sim: float, graph_boost: float = 0.0) -> floa
         + features.get("availability", 0.0) * WEIGHTS["availability"]
         + features.get("location_logistics", 0.0) * WEIGHTS["location_logistics"]
         + features["education"]       * WEIGHTS["education"]
-        + features["certification"]   * WEIGHTS["certification"]
     )
     fraud = features.get("fraud_score", 0.0)
     if fraud >= FRAUD_CUTOFF:
