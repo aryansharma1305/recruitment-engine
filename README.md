@@ -12,7 +12,7 @@ Recruiting search often fails because the best candidates do not always write th
 - shipped production systems matter more than tutorials
 - availability and recruiter response matter
 - suspicious profiles and honeypots are penalized
-- ranking runs locally with no hosted LLM or vector database dependency
+- ranking runs locally with no hosted LLM or hosted vector database dependency
 
 ## What It Produces
 
@@ -65,14 +65,14 @@ The final score combines local semantic similarity with structured recruiter-sty
 
 The default path is CPU-only and local:
 
-- no Pinecone required
+- no hosted vector database required
 - no hosted LLM required
 - no GPU required
 - no network calls during ranking
 - deterministic ranking tie-breaks
 - official CSV validator passes
 
-Hosted integrations are optional only. The submitted ranking path does not call Pinecone or any hosted LLM; the Pinecone helper code is kept as future scaffolding and stays outside the default CLI flow.
+Hosted LLM explanations are optional only. The submitted ranking path does not call hosted APIs; semantic scoring uses local TF-IDF by default or local sentence-transformer embeddings when requested.
 
 ## Project Layout
 

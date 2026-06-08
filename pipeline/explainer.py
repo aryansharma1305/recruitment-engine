@@ -53,15 +53,22 @@ def _rule_based(rec: Dict, sim: float) -> str:
 
 
 def _llm_reason(rec: Dict, sim: float) -> str:
+    applied_ml = float(rec.get("applied_ml_years", 0) or 0)
+    shipped = float(rec.get("shipped_system", 0) or 0)
+    availability = float(rec.get("availability", 0) or 0)
+    response_rate = float(rec.get("response_rate", 0) or 0)
     prompt = (
         "You are a senior technical recruiter writing a one-sentence hiring note.\n"
         f"Role: Senior AI Engineer (embeddings, vector DBs, ranking/retrieval, Python)\n"
         f"Candidate: {rec.get('yoe')}yr {rec.get('title')}, "
         f"{rec.get('n_matched_skills')} core skill matches, "
+        f"{applied_ml:.1f}yr applied ML evidence, "
+        f"shipped-system evidence {shipped:.0f}/100, "
         f"semantic fit {sim:.2f}, "
         f"GitHub {rec.get('github')}, "
         f"notice {rec.get('notice_days')}d, "
-        f"response rate {rec.get('response_rate', 0):.0%}.\n"
+        f"response rate {response_rate:.0%}, "
+        f"availability {availability:.0f}/100.\n"
         f"Summary: {rec.get('summary', '')}\n\n"
         "Write one concise sentence (max 30 words) explaining why this candidate fits. "
         "Be specific. No fluff."

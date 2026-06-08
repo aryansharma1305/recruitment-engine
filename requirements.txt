@@ -1,6 +1,5 @@
 sentence-transformers>=2.6.0
 torch>=2.0.0
-pinecone[grpc]>=3.0.0
 rapidfuzz>=3.0.0
 python-docx>=0.8.11
 openai>=1.0.0

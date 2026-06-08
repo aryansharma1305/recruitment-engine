@@ -11,11 +11,6 @@ def _env_path(name: str, default: str) -> str:
     return os.path.expanduser(os.getenv(name, default))
 
 
-PINECONE_API_KEY   = os.getenv("PINECONE_API_KEY", "")
-PINECONE_INDEX     = os.getenv("PINECONE_INDEX", "hackathon")
-PINECONE_NAMESPACE = os.getenv("PINECONE_NAMESPACE", "candidates")
-EMBED_DIM          = 1024
-
 OPENROUTER_API_KEY  = os.getenv("OPENROUTER_API_KEY", "")
 OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
 OPENROUTER_MODEL    = os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-001")
@@ -35,7 +30,6 @@ TOP500_CSV      = _env_path("TOP500_CSV", os.path.join(OUTPUT_DIR, "top500.csv")
 
 EMBED_MODEL     = "BAAI/bge-large-en-v1.5"
 EMBED_BATCH     = 128
-UPSERT_BATCH    = 100
 
 TOP_N_PREFILTER = 5000
 TOP_N_RANK      = 500

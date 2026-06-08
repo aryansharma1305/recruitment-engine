@@ -1,5 +1,5 @@
 import json
-import os
+import sys
 from typing import Generator, Dict, Any, List
 
 
@@ -11,8 +11,8 @@ def stream(path: str) -> Generator[Dict[str, Any], None, None]:
                 continue
             try:
                 yield json.loads(line)
-            except json.JSONDecodeError:
-                pass
+            except json.JSONDecodeError as exc:
+                print(f"Skipping invalid JSON in {path}:{lineno}: {exc}", file=sys.stderr)
 
 
 def load_json_array(path: str) -> List[Dict[str, Any]]:
