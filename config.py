@@ -16,18 +16,17 @@ OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/ap
 OPENROUTER_MODEL    = os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-001")
 ALLOW_HOSTED_LLM_EXPLANATIONS = os.getenv("ALLOW_HOSTED_LLM_EXPLANATIONS", "false").lower() == "true"
 
-BASE_DIR        = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_DATA_DIR = _env_path(
-    "REDROB_DATA_DIR",
-    "/Users/gugloo/Downloads/[PUB] India_runs_data_and_ai_challenge/India_runs_data_and_ai_challenge",
-)
-OUTPUT_DIR      = _env_path("OUTPUT_DIR", os.path.join(BASE_DIR, "output"))
-CANDIDATES_FILE = _env_path("CANDIDATES_FILE", os.path.join(DEFAULT_DATA_DIR, "candidates.jsonl"))
-SAMPLE_FILE     = _env_path("SAMPLE_FILE", os.path.join(DEFAULT_DATA_DIR, "sample_candidates.json"))
-JD_FILE         = _env_path("JD_FILE", os.path.join(DEFAULT_DATA_DIR, "job_description.docx"))
-OUTPUT_CSV      = _env_path("OUTPUT_CSV", os.path.join(OUTPUT_DIR, "submission.csv"))
-TOP500_CSV      = _env_path("TOP500_CSV", os.path.join(OUTPUT_DIR, "top500.csv"))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+DEFAULT_DATA_DIR = r"C:\Users\DELL\Downloads\[PUB] India_runs_data_and_ai_challenge\[PUB] India_runs_data_and_ai_challenge\India_runs_data_and_ai_challenge"
+
+OUTPUT_DIR = os.path.join(BASE_DIR, "output")
+CANDIDATES_FILE = os.path.join(DEFAULT_DATA_DIR, "candidates.jsonl")
+SAMPLE_FILE = os.path.join(DEFAULT_DATA_DIR, "sample_candidates.json")
+JD_FILE = os.path.join(DEFAULT_DATA_DIR, "job_description.docx")
+
+OUTPUT_CSV = os.path.join(OUTPUT_DIR, "submission.csv")
+TOP500_CSV = os.path.join(OUTPUT_DIR, "top500.csv")
 EMBED_MODEL     = "BAAI/bge-large-en-v1.5"
 EMBED_BATCH     = 128
 

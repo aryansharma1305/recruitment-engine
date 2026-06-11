@@ -23,31 +23,45 @@ except ImportError:
 
 
 def _build_text(candidate: Dict) -> str:
-    profile = safe_profile(candidate)
-    skills  = safe_skills(candidate)
-    career  = safe_career(candidate)
 
-    skill_text   = ", ".join(s.get("name", "") for s in skills)
-    career_text  = " | ".join(
-        (
-            f"{j.get('title', '')} at {j.get('company', '')} "
-            f"({j.get('industry', '')}, {j.get('company_size', '')}): "
-            f"{j.get('description', '')[:450]}"
+    profile = safe_profile(candidate)
+    skills = safe_skills(candidate)
+    career = safe_career(candidate)
+    signals = safe_signals(candidate)
+
+    skill_text = ", ".join(
+        sorted(
+            set(
+                s.get("name", "").lower()
+                for s in skills
+                if s.get("name")
+            )
         )
-        for j in career[:5]
     )
+
+    career_text = " | ".join(
+        (
+            f"TITLE: {j.get('title', '')} "
+            f"COMPANY: {j.get('company', '')} "
+            f"INDUSTRY: {j.get('industry', '')} "
+            f"DESCRIPTION: {j.get('description', '')[:700]}"
+        )
+        for j in career[:8]
+    )
+
     signal_text = (
-        f"github activity {safe_signals(candidate).get('github_activity_score', -1)}. "
-        f"open to work {safe_signals(candidate).get('open_to_work_flag', False)}."
+        f"github activity {signals.get('github_activity_score', 0)}. "
+        f"open to work {signals.get('open_to_work_flag', False)}."
     )
+
     return (
-        f"Current role: {profile.get('current_title', '')}. "
-        f"Career evidence: {career_text}. "
-        f"Skills: {skill_text}. "
-        f"Headline: {profile.get('headline', '')}. "
-        f"Summary: {profile.get('summary', '')[:260]}. "
+        f"CURRENT_TITLE: {profile.get('current_title', '')}. "
+        f"HEADLINE: {profile.get('headline', '')}. "
+        f"SUMMARY: {profile.get('summary', '')[:800]}. "
+        f"SKILLS: {skill_text}. "
+        f"CAREER_HISTORY: {career_text}. "
         f"{signal_text}"
-    )[:2600]
+    )[:4000]
 
 
 def _encode(texts: List[str]) -> np.ndarray:
@@ -61,12 +75,66 @@ def _encode(texts: List[str]) -> np.ndarray:
         out.append(vecs)
     return np.vstack(out).astype("float32")
 
+def normalize_score_dict(scores: Dict[str, float]) -> Dict[str, float]:
+
+    if not scores:
+        return scores
+
+    values = list(scores.values())
+
+    lo = min(values)
+    hi = max(values)
+
+    if hi <= lo:
+        return {k: 0.5 for k in scores}
+
+    return {
+        k: (v - lo) / (hi - lo)
+        for k, v in scores.items()
+    }
+
+
+def skill_overlap_boost(candidate: Dict) -> float:
+
+    skills = {
+        s.get("name", "").lower()
+        for s in safe_skills(candidate)
+        if s.get("name")
+    }
+
+    matches = sum(
+        1
+        for skill in JD_CORE_SKILLS
+        if skill.lower() in skills
+    )
+
+    return min(matches / 20.0, 1.0)
+
 
 def embed_jd(jd_text: str = JD_EMBED_TEXT) -> np.ndarray:
     if SentenceTransformer is None:
         raise RuntimeError("sentence-transformers is not installed")
     model = _get_model()
-    query = f"Represent this sentence for searching relevant passages: {jd_text}"
+    query = f"""
+Senior AI Engineer candidate search.
+
+Required skills and experience:
+
+{jd_text}
+
+Find candidates who demonstrate:
+
+- Production AI systems
+- Retrieval systems
+- Ranking systems
+- Recommendation systems
+- Vector databases
+- Embeddings
+- NLP
+- Applied machine learning
+
+Return semantically relevant candidates.
+"""
     return model.encode([query], normalize_embeddings=True, show_progress_bar=False).astype("float32")
 
 
@@ -104,5 +172,31 @@ def local_tfidf_scores(candidates: List[Dict], jd_text: str) -> Dict[str, float]
 
 
 def local_embedding_scores(candidates: List[Dict], jd_text: str) -> Dict[str, float]:
+
     jd_emb = embed_jd(jd_text)
-    return cosine_scores(candidates, jd_emb)
+
+    embed_scores = cosine_scores(candidates, jd_emb)
+
+    tfidf_scores = local_tfidf_scores(candidates, jd_text)
+
+    embed_scores = normalize_score_dict(embed_scores)
+    tfidf_scores = normalize_score_dict(tfidf_scores)
+
+    hybrid_scores = {}
+
+    for candidate in candidates:
+
+        cid = candidate.get("candidate_id", "")
+
+        semantic = embed_scores.get(cid, 0.0)
+        lexical = tfidf_scores.get(cid, 0.0)
+
+        skill_boost = skill_overlap_boost(candidate)
+
+        hybrid_scores[cid] = (
+            0.75 * semantic +
+            0.15 * lexical +
+            0.10 * skill_boost
+        )
+
+    return hybrid_scores

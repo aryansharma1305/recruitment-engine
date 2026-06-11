@@ -118,8 +118,12 @@ def experience(candidate: Dict) -> float:
         score *= 0.68
 
     aml_years = applied_ml_years(candidate)
-    if aml_years >= 4:
+    if aml_years >= 6:
+        score = min(100.0, score + 12)
+    elif aml_years >= 4:
         score = min(100.0, score + 8)
+    elif aml_years >= 2:
+        score = min(100.0, score + 4)
     elif aml_years < 1 and yoe >= 5:
         score *= 0.82
 
@@ -128,11 +132,42 @@ def experience(candidate: Dict) -> float:
 
 def _desc_score(career: List[Dict]) -> float:
     ai_kw = [
-        "machine learning", "deep learning", "neural", "embedding", "vector",
-        "ranking", "recommendation", "retrieval", "nlp", "language model",
-        "transformer", "training", "inference", "pytorch", "tensorflow",
-        "deploy", "mlops", "search", "semantic", "rag", "fine-tun", "llm",
-        "a/b", "evaluation", "production ml", "feature store",
+    "machine learning",
+    "deep learning",
+    "neural",
+    "embedding",
+    "vector",
+    "vector database",
+    "pinecone",
+    "weaviate",
+    "qdrant",
+    "milvus",
+    "faiss",
+    "ranking",
+    "recommendation",
+    "retrieval",
+    "semantic search",
+    "hybrid search",
+    "learning to rank",
+    "reranking",
+    "nlp",
+    "language model",
+    "transformer",
+    "training",
+    "inference",
+    "pytorch",
+    "tensorflow",
+    "deploy",
+    "mlops",
+    "search",
+    "semantic",
+    "rag",
+    "fine-tun",
+    "llm",
+    "a/b",
+    "evaluation",
+    "production ml",
+    "feature store",
     ]
     blob = " ".join(_norm(j.get("description", "")) for j in career)
     if not blob:
@@ -255,10 +290,12 @@ def fit_penalty(candidate: Dict) -> float:
         "side projects", "played with", "experimenting with langchain",
         "grow my ai capabilities", "building competence on the ml side",
         "chatgpt", "emerging ai capabilities", "curious about how ai tools",
-        "productivity and content creation", "transitioning toward ai",
+        "productivity and content creation", "transitioning toward ai","prompt engineering", 
+        "youtube tutorials", "bootcamp project", "course complettion", "chatbot using langchain", 
+        "openai api project"
     ]
     if any(term in text for term in learning_only_terms):
-        penalty += 0.22
+        penalty += 0.30
 
     cv_speech_robotics_terms = ["computer vision", "image classification", "speech recognition", "robotics"]
     ir_terms = ["retrieval", "ranking", "recommendation", "search", "nlp", "embedding"]

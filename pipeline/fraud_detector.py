@@ -12,10 +12,33 @@ from pipeline.text_utils import norm as _norm
 
 _CSUITE = {"cto", "ceo", "coo", "cmo", "chief", "vp of", "vice president", "director of"}
 _AI_KEYWORDS = {
-    "rag", "llm", "vector", "embedding", "embeddings", "pinecone", "weaviate", "qdrant",
-    "milvus", "faiss", "langchain", "openai", "fine-tuning", "lora", "qlora",
-    "transformer", "nlp", "ranking", "recommendation", "semantic search",
+    "rag",
+    "llm",
+    "vector",
+    "embedding",
+    "embeddings",
+    "pinecone",
+    "weaviate",
+    "qdrant",
+    "milvus",
+    "faiss",
+    "langchain",
+    "openai",
+    "fine-tuning",
+    "lora",
+    "qlora",
+    "transformer",
+    "nlp",
+    "ranking",
+    "recommendation",
+    "semantic search",
+    "hybrid search",
+    "learning to rank",
+    "reranking",
+    "agentic ai",
+    "multi agent",
 }
+
 _NON_TECH_TITLES = {
     "marketing manager", "hr manager", "accountant", "graphic designer", "content writer",
     "sales executive", "operations manager", "customer support", "project manager",
@@ -151,7 +174,7 @@ def detect(candidate: Dict) -> Tuple[float, List[str]]:
 
     if any(t in title for t in _NON_TECH_TITLES) and len(ai_skill_names) >= 6:
         flags.append("Non-technical title with many AI keywords")
-        penalty += 0.22
+        penalty += 0.30
 
     curr_jobs = [j for j in career if j.get("is_current")]
     if curr_jobs:
@@ -166,14 +189,16 @@ def detect(candidate: Dict) -> Tuple[float, List[str]]:
         flags.append(f"Aggregate skill months ({total_skill_mo}) implausible vs career ({int(total_career_mo)}mo)")
         penalty += 0.15
 
-    if applied_ml_years(candidate) < 0.75 and len(ai_skill_names) >= 8:
+    if applied_ml_years(candidate) < 1.0 and len(ai_skill_names) >= 6:
         flags.append("AI skills claimed without matching AI/ML career history")
-        penalty += 0.18
+        penalty += 0.25
 
     learning_only = {
         "online courses", "side projects", "played with", "ai enthusiast", "langchain tutorial",
         "chatgpt", "emerging ai capabilities", "productivity and content creation",
-        "transitioning toward ai", "curious about how ai tools",
+        "transitioning toward ai", "curious about how ai tools","prompt engineering",
+        "youtube tutorial", "bootcamp project", "course completion","openai api project",
+        "chatbot using langchain", "personal ai assistant",
     }
     if any(term in blob for term in learning_only) and len(ai_skill_names) >= 6 and applied_ml_years(candidate) < 1.5:
         flags.append("AI appears to be recent learning rather than production experience")
@@ -200,5 +225,9 @@ def detect(candidate: Dict) -> Tuple[float, List[str]]:
     if days_inactive > 180 and sig.get("recruiter_response_rate", 0) < 0.10:
         flags.append("Stale profile with very low recruiter response")
         penalty += 0.12
+
+    if len(ai_skill_names) >= 15 and applied_ml_years(candidate) < 2:
+        flags.append("Extreme AI skill inflation")
+        penalty += 0.20
 
     return round(min(1.0, penalty), 3), flags

@@ -7,9 +7,28 @@ from pipeline.loader import safe_career, safe_profile, safe_signals, safe_skills
 from pipeline.text_utils import norm
 
 TECH_TITLE_TERMS = {
-    "ai", "ml", "machine learning", "nlp", "data scientist", "data engineer",
-    "software", "backend", "platform", "search", "ranking", "recommendation",
-    "applied scientist", "research engineer", "cloud",
+    "ai",
+    "ml",
+    "machine learning",
+    "nlp",
+    "data scientist",
+    "data engineer",
+    "software",
+    "backend",
+    "platform",
+    "search",
+    "ranking",
+    "recommendation",
+    "retrieval",
+    "relevance",
+    "information retrieval",
+    "applied scientist",
+    "research engineer",
+    "cloud",
+    "ai engineer",
+    "ml engineer",
+    "machine learning engineer",
+    "deep learning engineer",
 }
 
 def profile_text(candidate: Dict) -> str:
@@ -69,7 +88,23 @@ def company_mix(candidate: Dict) -> Dict[str, float]:
         blob = norm(" ".join([job.get("company", ""), job.get("industry", ""), job.get("description", "")]))
         if any(firm in blob for firm in CONSULTING_FIRMS) or "consulting" in blob or "it services" in blob:
             consulting += 1
-        if has_any(blob, ["product", "saas", "platform", "marketplace", "internet", "software", "consumer tech"]):
+        if has_any(
+    blob,
+    [
+        "product",
+        "saas",
+        "platform",
+        "marketplace",
+        "internet",
+        "software",
+        "consumer tech",
+        "search",
+        "recruitment",
+        "talent",
+        "hr tech",
+        "recommendation",
+    ],
+):
             product += 1
         if has_any(blob, ["startup", "founding", "series a", "early-stage", "early stage"]):
             startup += 1
@@ -114,9 +149,27 @@ def applied_ml_years(candidate: Dict) -> float:
         "recommendation", "recommender",
     ]
     core_terms = [
-        "machine learning", "nlp", "retrieval", "ranking", "recommendation",
-        "recommender", "embedding", "llm", "rag", "semantic search", "vector search",
-    ]
+    "machine learning",
+    "nlp",
+    "retrieval",
+    "ranking",
+    "recommendation",
+    "recommender",
+    "embedding",
+    "llm",
+    "rag",
+    "semantic search",
+    "vector search",
+    "vector database",
+    "pinecone",
+    "weaviate",
+    "qdrant",
+    "milvus",
+    "faiss",
+    "hybrid search",
+    "learning to rank",
+    "reranking",
+]
     ownership_terms = [
         "built", "deployed", "shipped", "owned", "implemented", "trained", "inference",
         "model", "pipeline", "system", "service", "index", "evaluation", "production",
@@ -139,9 +192,27 @@ def shipped_system_score(candidate: Dict) -> float:
         "scaled", "owned", "built", "maintained", "improved", "optimized",
     ]
     system_terms = [
-        "ranking", "recommendation", "recommender", "search", "retrieval", "embedding",
-        "semantic", "vector", "index", "nlp", "matching", "candidate matching",
-    ]
+    "ranking",
+    "recommendation",
+    "recommender",
+    "search",
+    "retrieval",
+    "embedding",
+    "semantic",
+    "vector",
+    "vector database",
+    "pinecone",
+    "weaviate",
+    "qdrant",
+    "milvus",
+    "faiss",
+    "index",
+    "reranking",
+    "hybrid search",
+    "nlp",
+    "matching",
+    "candidate matching",
+]
     eval_terms = ["ndcg", "mrr", "map", "a/b", "ab test", "experiment", "offline", "online", "evaluation"]
 
     delivery = count_any(text, delivery_terms)
