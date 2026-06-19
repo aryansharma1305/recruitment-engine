@@ -1,101 +1,124 @@
-# Recruitment Engine
+# Recruitment Intelligence Platform
 
-AI-assisted candidate discovery for the Redrob Intelligent Candidate Discovery challenge.
+An AI-powered candidate discovery and ranking engine — built for the Redrob Intelligent Candidate Discovery Challenge and extended into a full recruiter-facing SaaS product.
 
-This repo ranks 100,000 candidate profiles for a Senior AI Engineer role using a local, reproducible ranking pipeline. The system is built to behave more like a careful recruiter than a keyword filter: it reads the job description, extracts evidence from career history and platform behavior, rejects obvious traps, and produces a trusted top-100 shortlist.
+The system ranks candidates the way a great recruiter would: by reading actual career history, finding evidence of shipped production systems, and rejecting keyword stuffers and honeypots — not by counting keywords.
 
-## Why This Exists
+---
 
-Recruiting search often fails because the best candidates do not always write the exact keywords in the job description, while weak candidates can stuff their profiles with fashionable terms. This project attacks that gap directly:
+## What You Can Do
 
-- career history matters more than keyword density
-- shipped production systems matter more than tutorials
-- availability and recruiter response matter
-- suspicious profiles and honeypots are penalized
-- ranking runs locally with no hosted LLM or hosted vector database dependency
+### 1. Upload & Rank Any Resumes
+Drop up to 50 PDF or DOCX resumes against any job description. The engine parses the JD, extracts required skills automatically, runs the full scoring pipeline, and returns a ranked shortlist with AI-generated reasoning — all locally on CPU.
 
-## What It Produces
+### 2. Explore the Hackathon Top-100 Dashboard
+Browse the pre-ranked top-100 candidates for the Senior AI Engineer role. Filter by GitHub score, open-to-work status, or seniority. Drill into any candidate profile to see a visual score breakdown, career timeline, skill chips, and the AI reasoning.
 
-The pipeline writes a valid submission CSV:
+### 3. Compare Any Two Candidates Side-by-Side
+Hold `Ctrl` and click two candidates in the sidebar to open a detailed comparison view across all scoring dimensions.
 
-```text
-candidate_id,rank,score,reasoning
-CAND_0071974,1,0.908890,"7.8yr Senior AI Engineer; 7.7yr applied ML evidence; strong shipped retrieval/ranking-system evidence; ..."
-```
+### 4. Skill Heatmap
+See which JD-relevant skills appear most frequently across the entire top-100 shortlist.
 
-The generated file lives at:
-
-```bash
-output/submission.csv
-```
-
-`output/` is intentionally ignored by Git so generated artifacts do not pollute the source repo.
+---
 
 ## Architecture
 
-```mermaid
-flowchart LR
-    JD["Job Description (.docx/.txt)"] --> JDL["JD Loader"]
-    C["candidates.jsonl"] --> L["Candidate Loader"]
-    L --> F["Feature Extractor"]
-    L --> H["Fraud / Honeypot Detector"]
-    JDL --> S["Local Semantic Scorer"]
-    F --> R["Hybrid Ranker"]
-    H --> R
-    S --> R
-    R --> E["Reason Generator"]
-    E --> CSV["Top-100 Submission CSV"]
 ```
+Browser  (React + Vite)
+   │
+   ├── Upload & Rank Tab
+   │       ↓ POST /api/rank  (multipart: JD text + resume files)
+   │
+   └── FastAPI Server  (api/main.py)
+           │
+           ├── api/resume_parser.py   PDF/DOCX → candidate schema
+           ├── api/jd_parser.py       Free-text JD → skill buckets + embed text
+           │
+           └── Core Pipeline  (pipeline/)
+                   ├── fraud_detector.py    14-rule honeypot filter
+                   ├── feature_extractor.py Structured scoring (9+ signals)
+                   ├── embedder.py          Local BGE / TF-IDF semantic match
+                   ├── ranker.py            Weighted scorer + seniority bonuses
+                   └── explainer.py         Reasoning text generation
+```
+
+### Hackathon Batch Mode (no server needed)
+
+```
+candidates.jsonl (100K profiles)
+      ↓
+run_pipeline.py
+      ↓
+output/submission.csv  (Top 100, ranked, explained)
+```
+
+---
 
 ## Ranking Signals
 
-The final score combines local semantic similarity with structured recruiter-style evidence:
+The final score is a weighted combination of 11 signals:
 
-| Signal | What it captures |
-| --- | --- |
-| Skill capability buckets | Retrieval, vector search, ranking/eval, Python/ML, LLM/NLP, production ML |
-| Career relevance | Role titles, past roles, seniority, applied ML career depth |
-| Shipped-system evidence | Production search, ranking, recommendation, retrieval, evaluation, deployment |
-| Applied ML years | Years of credible ML/AI work from career history, not just profile summary |
-| Behavioral availability | Recency, response rate, response speed, open-to-work, recruiter saves |
-| Logistics | Location, relocation fit, notice period |
-| Fraud / honeypot checks | Impossible timelines, keyword stuffing, expert skills with zero usage, stale profiles |
+| Signal | Weight | What it measures |
+|---|---|---|
+| Skill Match | 0.23 | Capability coverage across 7 JD skill buckets |
+| Career Relevance | 0.16 | Role titles, past trajectory, shipped-system evidence |
+| Semantic Similarity | 0.14 | BGE/TF-IDF match against JD embed text |
+| Product Impact | 0.10 | Delivery + technical evidence in career descriptions |
+| Experience | 0.10 | YOE vs. JD range (3–12yr for this role) |
+| Behavioral | 0.09 | GitHub, response rate, recency, open-to-work |
+| Shipped System | 0.08 | Evidence of deploying search/ranking/recommendation |
+| Applied ML Years | 0.05 | Actual ML/AI career months, not just summary claims |
+| Availability | 0.03 | Notice period, recruiter saves, offer acceptance |
+| Location/Logistics | 0.02 | Proximity to Pune/Noida, relocation willingness |
+| Education | 0.01 | Tier + field + degree bonus |
 
-## Why It Is Reproducible
+**Fraud detection** runs before scoring and disqualifies candidates above `FRAUD_CUTOFF = 0.55` outright. 14 rules cover: impossible timelines, expert skills with zero usage months, AI-learning-only language, C-suite titles with low YOE, repeated career descriptions, and more.
 
-The default path is CPU-only and local:
-
-- no hosted vector database required
-- no hosted LLM required
-- no GPU required
-- no network calls during ranking
-- deterministic ranking tie-breaks
-- official CSV validator passes
-
-Hosted LLM explanations are optional only. The submitted ranking path does not call hosted APIs; semantic scoring uses local TF-IDF by default or local sentence-transformer embeddings when requested.
+---
 
 ## Project Layout
 
-```text
-.
-├── config.py                    # Environment-driven config and scoring weights
-├── run_pipeline.py              # Main CLI entrypoint
+```
+recruitment_engine/
+│
+├── run_pipeline.py              # Hackathon batch entrypoint
+├── config.py                    # All weights, thresholds, JD skill buckets
+├── export_frontend_data.py      # Fuses submission CSV + candidate profiles → JSON
+│
+├── api/                         # FastAPI server (resume upload mode)
+│   ├── main.py                  # POST /api/rank, GET /api/status/{id}
+│   ├── resume_parser.py         # PDF/DOCX → candidate schema
+│   └── jd_parser.py             # Free-text JD → dynamic skill config
+│
 ├── pipeline/
-│   ├── jd_loader.py             # Reads JD files
-│   ├── loader.py                # Candidate JSON/JSONL loading helpers
-│   ├── embedder.py              # Local TF-IDF / optional local embedding scoring
-│   ├── evidence.py              # Recruiter-style evidence extraction
-│   ├── feature_extractor.py     # Structured candidate feature extraction
-│   ├── fraud_detector.py        # Honeypot and suspicious-profile checks
-│   ├── ranker.py                # Hybrid score calculation
-│   ├── explainer.py             # Submission reasoning text
-│   └── graph_rag.py             # Experimental graph expansion, disabled by default
+│   ├── loader.py                # Streaming JSONL loader + safe accessors
+│   ├── embedder.py              # Local BGE / TF-IDF semantic scoring
+│   ├── evidence.py              # applied_ml_years, shipped_system_score, etc.
+│   ├── feature_extractor.py     # extract() → all 11 score signals
+│   ├── fraud_detector.py        # detect() → (penalty_score, [flags])
+│   ├── ranker.py                # score() + rank() with seniority bonuses
+│   ├── explainer.py             # Human-readable reasoning per candidate
+│   ├── graph_rag.py             # Experimental multi-hop graph boost (--use-graph)
+│   ├── jd_loader.py             # JD .docx/.txt parser
+│   ├── text_utils.py            # norm() utility
+│   └── graph_rag.py
+│
+├── frontend/                    # React + Vite dashboard
+│   ├── src/App.jsx              # Upload, Profile, Heatmap, Compare views
+│   ├── src/index.css            # Premium dark UI (glassmorphism, Inter font)
+│   └── public/top_candidates.json  # Pre-built data for hackathon dashboard
+│
 ├── requirements.txt
 ├── .env.example
 └── README.md
 ```
 
+---
+
 ## Setup
+
+### Python Dependencies
 
 ```bash
 python3 -m venv .venv
@@ -103,26 +126,24 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Optional path overrides:
+Also install API dependencies:
 
 ```bash
-cp .env.example .env
+pip install fastapi uvicorn python-multipart PyMuPDF python-docx aiofiles
 ```
 
-Edit `.env` if your dataset is not in the default location.
-
-## Run A Smoke Test
+### Frontend
 
 ```bash
-python3 run_pipeline.py \
-  --sample \
-  --top-k 50 \
-  --output-csv output/sample_submission.csv
+cd frontend
+npm install
 ```
 
-The official sample has only 50 candidates, so this smoke-test output is not expected to pass the 100-row validator.
+---
 
-## Run The Full Pipeline
+## Running Locally
+
+### Option A — Hackathon Batch Pipeline
 
 ```bash
 python3 run_pipeline.py \
@@ -131,51 +152,72 @@ python3 run_pipeline.py \
   --output-csv output/submission.csv
 ```
 
-Validate with the official script:
+Validate:
 
 ```bash
 python3 /path/to/validate_submission.py output/submission.csv
 ```
 
-Current local benchmark on the provided 100k dataset:
+Benchmark on the provided 100K dataset:
 
-```text
+```
 Runtime: 156.7 seconds
 Filtered suspicious profiles: 4,182
 Output rows: 100
 Validator: Submission is valid.
 ```
 
-## Useful Options
+### Option B — Full SaaS Mode (Upload any resumes)
+
+**Step 1:** Start the API server:
+```bash
+uvicorn api.main:app --reload --port 8000
+```
+
+**Step 2:** In a new terminal, start the frontend:
+```bash
+cd frontend
+npm run dev
+```
+
+**Step 3:** Open [http://localhost:5173](http://localhost:5173)
+
+- Go to **"Upload & Rank"** tab
+- Paste any job description
+- Drag and drop up to 50 PDF or DOCX resumes
+- Hit **"Rank These Resumes"**
+- Results appear instantly in Profile, Heatmap, and Compare tabs
+
+API documentation is available at [http://localhost:8000/docs](http://localhost:8000/docs).
+
+---
+
+## Useful Pipeline Options
 
 ```bash
 python3 run_pipeline.py --help
 ```
 
-Important flags:
+| Flag | Default | Description |
+|---|---|---|
+| `--sample` | — | Run on sample_candidates.json |
+| `--semantic-backend` | `tfidf` | `tfidf`, `embedding`, or `none` |
+| `--use-graph` | off | Enable experimental GraphRAG multi-hop boost |
+| `--top-k` | 100 | Number of candidates in final output |
 
-- `--sample`: run on `sample_candidates.json`
-- `--semantic-backend tfidf`: default local semantic scorer
-- `--semantic-backend embedding`: optional local sentence-transformer scoring
-- `--semantic-backend none`: structured-feature-only scoring
-- `--use-graph`: experimental graph boost, disabled by default
+---
 
-## Design Notes
+## Why It Works
 
-The scoring intentionally favors proof over claims. A candidate who says "RAG" in a summary gets less credit than a candidate whose career history shows they shipped search, ranking, recommendation, or retrieval systems. Non-technical profiles with AI-learning language are heavily down-weighted, because the JD explicitly warns against keyword stuffing and recent tutorial-only AI exposure.
+The engine is deliberately **proof-first, not claim-first**:
 
-The reason column is generated locally from structured evidence. It is designed for recruiter review, not marketing copy.
+- A candidate who lists "RAG" as a skill gets less credit than one whose career descriptions show they shipped retrieval systems to real users.
+- "AI enthusiast" and "learning LangChain" language triggers a `fit_penalty`.
+- Consulting-only career tracks are penalized — the JD explicitly excludes them.
+- GitHub activity, recruiter response rate, and open-to-work status are real signals that most keyword-based rankers ignore entirely.
 
-## Submission Checklist
+---
 
-- [x] Full pipeline runs locally
-- [x] No hard-coded API keys
-- [x] No hosted API dependency in default ranking path
-- [x] Output matches `candidate_id,rank,score,reasoning`
-- [x] Official validator passes
-- [ ] Fill `submission_metadata_template.yaml`
-- [ ] Build final deck/PDF
+## Ethics & Tooling
 
-## Ethics And Tooling
-
-This repository contains original challenge-specific code. AI assistance was used during development and should be disclosed honestly in the challenge metadata if required. The implementation is intentionally transparent so every ranking decision can be explained and defended.
+This repository contains original challenge-specific code. AI assistance (Google Antigravity / Gemini) was used for architecture discussion, code review, and refactoring. No candidate data was sent to any hosted LLM during the deterministic ranking phase. Every ranking decision can be explained and defended from the structured evidence in the output reasoning column.
