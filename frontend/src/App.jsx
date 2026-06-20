@@ -3,7 +3,8 @@ import {
   Search, Briefcase, MapPin, GitBranch, Shield, TrendingUp,
   Star, BarChart3, LayoutGrid, GitCompare, User, ChevronRight,
   CheckCircle2, AlertTriangle, Award, Clock, Building2, GraduationCap,
-  Upload, FileText, Trash2, Play, Loader2, AlertCircle, ChevronDown
+  Upload, FileText, Trash2, Play, Loader2, AlertCircle, ChevronDown,
+  Download, ShieldX, Zap
 } from 'lucide-react'
 import './index.css'
 
@@ -111,6 +112,175 @@ function buildHeatmap(candidates) {
   return Object.entries(freq)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 30)
+}
+
+/* ──────────────────────────────────────────────────────────────
+   EXPORT CSV HELPER
+   ────────────────────────────────────────────────────────────── */
+
+function exportCSV(candidates) {
+  const header = 'rank,candidate_id,score,title,company,yoe,location,reasoning'
+  const rows = candidates.map(c => {
+    const p = c.profile_data?.profile || {}
+    const safe = v => `"${String(v ?? '').replace(/"/g, '""')}"`
+    return [
+      c.rank, c.profile_data?.candidate_id, c.score.toFixed(4),
+      safe(p.current_title), safe(p.current_company),
+      p.years_of_experience, safe(p.location), safe(c.reasoning)
+    ].join(',')
+  })
+  const blob = new Blob([[header, ...rows].join('\n')], { type: 'text/csv' })
+  const url  = URL.createObjectURL(blob)
+  const a    = document.createElement('a')
+  a.href = url
+  a.download = 'ranked_candidates.csv'
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+/* ──────────────────────────────────────────────────────────────
+   WHY NOT #1 PANEL
+   ────────────────────────────────────────────────────────────── */
+
+const SIGNAL_KEYS = [
+  { key: 'skill_match',      label: 'Skill Match',       color: 'var(--accent)' },
+  { key: 'career_relevance', label: 'Career Relevance',  color: 'var(--blue)' },
+  { key: 'semantic_sim',     label: 'Semantic Match',    color: 'var(--purple)' },
+  { key: 'experience',       label: 'Experience',        color: 'var(--green)' },
+  { key: 'behavioral',       label: 'Behavioral',        color: 'var(--amber)' },
+  { key: 'shipped_system',   label: 'Shipped Systems',   color: 'var(--green)' },
+  { key: 'applied_ml_years', label: 'Applied ML Years',  color: 'var(--blue)' },
+]
+
+function WhyNotFirst({ candidate, topCandidate }) {
+  if (!candidate || !topCandidate || candidate.profile_data?.candidate_id === topCandidate.profile_data?.candidate_id) {
+    return null
+  }
+
+  const sbA = candidate.score_breakdown || {}
+  const sbT = topCandidate.score_breakdown || {}
+
+  const deltas = SIGNAL_KEYS.map(sig => {
+    const mine = Number(sbA[sig.key] ?? 0)
+    const top  = Number(sbT[sig.key] ?? 0)
+    return { ...sig, mine, top, diff: mine - top }
+  })
+
+  const gaps = deltas.filter(d => d.diff < -5).sort((a, b) => a.diff - b.diff)
+  if (!gaps.length) return null
+
+  return (
+    <div className="delta-panel">
+      <div className="delta-title"><Zap size={13} /> Why not #1? — Gap vs Rank #{topCandidate.rank}</div>
+      {gaps.map(g => (
+        <div className="delta-row" key={g.key}>
+          <div className="delta-label">{g.label}</div>
+          <div className="delta-bar-wrap">
+            <div className="delta-bar-fill" style={{ left: `${Math.min(g.mine, g.top)}%`, width: `${Math.abs(g.diff)}%`, background: 'rgba(245,158,11,0.4)' }} />
+            <div className="delta-bar-fill" style={{ width: `${g.mine}%`, background: g.color, opacity: 0.7 }} />
+          </div>
+          <div className="delta-val" style={{ color: 'var(--text-2)' }}>{g.mine.toFixed(0)}</div>
+          <div className="delta-val" style={{ color: 'var(--text-3)' }}>#{topCandidate.rank}: {g.top.toFixed(0)}</div>
+          <div className="delta-diff" style={{ color: 'var(--amber)' }}>{g.diff > 0 ? '+' : ''}{g.diff.toFixed(0)}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/* ──────────────────────────────────────────────────────────────
+   FRAUD VIEW
+   ────────────────────────────────────────────────────────────── */
+
+const FRAUD_RULES = [
+  'Impossible YOE: claimed experience vs career timeline mismatch',
+  'Skill count > 50: implausible breadth',
+  '10+ expert skills with zero usage months',
+  'AI keyword-heavy skills on non-technical title',
+  'C-suite title with < 5 years experience',
+  'Senior-level title with < 2 years experience',
+  'Education dates are reversed or degree > 10 years',
+  'Overlapping employment periods > 3 months',
+  'No email / phone / LinkedIn verification',
+  'Low profile completeness but very high endorsements',
+  'Current role duration exceeds claimed total experience',
+  'AI skills without any matching ML career history',
+  'AI-learning language on non-technical profile',
+  'Entire career at consulting firms (JD disqualifier)',
+]
+
+function FraudView() {
+  const [examples, setExamples] = useState([])
+
+  useEffect(() => {
+    fetch('/fraud_examples.json')
+      .then(r => r.json())
+      .then(setExamples)
+      .catch(() => {})
+  }, [])
+
+  return (
+    <div className="animate-in">
+      <div style={{ marginBottom: '24px' }}>
+        <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '6px' }}>Fraud & Honeypot Detection</h2>
+        <p style={{ color: 'var(--text-2)', fontSize: '0.9rem', lineHeight: 1.6 }}>
+          The pipeline runs 14 detection rules before scoring. Candidates exceeding a 0.55 penalty score
+          are disqualified entirely and never enter the ranked pool.
+        </p>
+      </div>
+
+      <div className="fraud-stats-row">
+        {[
+          { value: '100,000', label: 'Total Candidates', color: 'var(--text)' },
+          { value: '4,182',   label: 'Flagged & Removed', color: 'var(--red)' },
+          { value: '4.18%',   label: 'Fraud Rate', color: 'var(--amber)' },
+          { value: '14',      label: 'Detection Rules', color: 'var(--accent)' },
+        ].map(s => (
+          <div className="fraud-stat-card" key={s.label}>
+            <div className="fraud-stat-value" style={{ color: s.color }}>{s.value}</div>
+            <div className="fraud-stat-label">{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="section-title" style={{ marginBottom: '12px' }}><Shield size={14} /> Detection Rules</div>
+      <div className="fraud-rules-grid" style={{ marginBottom: '28px' }}>
+        {FRAUD_RULES.map((rule, i) => (
+          <div className="fraud-rule-pill" key={i}>
+            <div className="fraud-rule-dot" />
+            {rule}
+          </div>
+        ))}
+      </div>
+
+      {examples.length > 0 && (
+        <>
+          <div className="section-title" style={{ marginBottom: '12px' }}><ShieldX size={14} /> Example Flagged Profiles</div>
+          {examples.slice(0, 10).map((ex, i) => (
+            <div className="fraud-card" key={i}>
+              <div className="fraud-card-header">
+                <div>
+                  <div className="fraud-title">{ex.title || 'Unknown Title'}</div>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--text-3)', marginTop: '2px' }}>
+                    {ex.candidate_id} · {ex.yoe}yr exp · {ex.n_skills} skills listed
+                  </div>
+                </div>
+                <div className="fraud-score-badge">score: {ex.fraud_score.toFixed(2)}</div>
+              </div>
+              <div className="fraud-flags">
+                {(ex.flags || []).map((flag, fi) => (
+                  <div className="fraud-flag" key={fi}>
+                    <AlertTriangle size={13} style={{ color: 'var(--red)', flexShrink: 0, marginTop: '1px' }} />
+                    {flag}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </>
+      )}
+    </div>
+  )
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -880,12 +1050,29 @@ export default function App() {
           <button className={`mode-tab ${view === 'compare' ? 'active' : ''}`} onClick={() => setView('compare')}>
             <GitCompare size={15} /> Compare {compareSet.length > 0 ? `(${compareSet.length})` : ''}
           </button>
+          <button className={`mode-tab ${view === 'fraud' ? 'active' : ''}`} onClick={() => setView('fraud')}>
+            <ShieldX size={15} /> Fraud Caught
+          </button>
+          <button
+            className="export-btn"
+            style={{ marginLeft: 'auto' }}
+            onClick={() => exportCSV(activeCandidates)}
+            title="Download ranked candidates as CSV"
+          >
+            <Download size={14} /> Export CSV
+          </button>
         </nav>
         <div className="content-area">
           {view === 'upload'  && <UploadView onResultsReady={handleResultsReady} />}
-          {view === 'profile' && <ProfileView candidate={selected} />}
+          {view === 'profile' && (
+            <>
+              <WhyNotFirst candidate={selected} topCandidate={activeCandidates[0]} />
+              <ProfileView candidate={selected} />
+            </>
+          )}
           {view === 'heatmap' && <HeatmapView candidates={activeCandidates} />}
           {view === 'compare' && <CompareView candidates={compareSet} />}
+          {view === 'fraud'   && <FraudView />}
         </div>
       </main>
     </div>

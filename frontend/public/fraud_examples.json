@@ -1,0 +1,242 @@
+[
+  {
+    "candidate_id": "CAND_0000021",
+    "title": "Project Manager",
+    "yoe": 14.5,
+    "fraud_score": 0.85,
+    "flags": [
+      "Non-technical title with many AI keywords",
+      "AI skills claimed without matching AI/ML career history",
+      "AI appears to be recent learning rather than production experience"
+    ],
+    "n_skills": 16
+  },
+  {
+    "candidate_id": "CAND_0000028",
+    "title": "Operations Manager",
+    "yoe": 1.1,
+    "fraud_score": 0.76,
+    "flags": [
+      "Senior-level title with 1.1yr experience",
+      "Aggregate skill months (174) implausible vs career (13mo)",
+      "Non-technical profile with AI-learning language"
+    ],
+    "n_skills": 10
+  },
+  {
+    "candidate_id": "CAND_0000074",
+    "title": "Operations Manager",
+    "yoe": 1.9,
+    "fraud_score": 1.0,
+    "flags": [
+      "No verification signals (email/phone/LinkedIn all unverified)",
+      "Senior-level title with 1.9yr experience",
+      "Non-technical title with many AI keywords"
+    ],
+    "n_skills": 15
+  },
+  {
+    "candidate_id": "CAND_0000083",
+    "title": "Graphic Designer",
+    "yoe": 6.7,
+    "fraud_score": 1.0,
+    "flags": [
+      "AI keyword-heavy skills on non-technical current title",
+      "Non-technical title with many AI keywords",
+      "AI skills claimed without matching AI/ML career history"
+    ],
+    "n_skills": 17
+  },
+  {
+    "candidate_id": "CAND_0000120",
+    "title": "Graphic Designer",
+    "yoe": 5.7,
+    "fraud_score": 1.0,
+    "flags": [
+      "AI keyword-heavy skills on non-technical current title",
+      "Non-technical title with many AI keywords",
+      "AI skills claimed without matching AI/ML career history"
+    ],
+    "n_skills": 20
+  },
+  {
+    "candidate_id": "CAND_0000121",
+    "title": "Customer Support",
+    "yoe": 3.7,
+    "fraud_score": 0.75,
+    "flags": [
+      "Non-technical title with many AI keywords",
+      "AI skills claimed without matching AI/ML career history",
+      "AI appears to be recent learning rather than production experience"
+    ],
+    "n_skills": 15
+  },
+  {
+    "candidate_id": "CAND_0000133",
+    "title": "Graphic Designer",
+    "yoe": 11.7,
+    "fraud_score": 0.75,
+    "flags": [
+      "Non-technical title with many AI keywords",
+      "AI skills claimed without matching AI/ML career history",
+      "AI appears to be recent learning rather than production experience"
+    ],
+    "n_skills": 13
+  },
+  {
+    "candidate_id": "CAND_0000201",
+    "title": "Marketing Manager",
+    "yoe": 14.1,
+    "fraud_score": 0.75,
+    "flags": [
+      "Non-technical title with many AI keywords",
+      "AI skills claimed without matching AI/ML career history",
+      "AI appears to be recent learning rather than production experience"
+    ],
+    "n_skills": 13
+  },
+  {
+    "candidate_id": "CAND_0000203",
+    "title": "Operations Manager",
+    "yoe": 4.0,
+    "fraud_score": 0.75,
+    "flags": [
+      "Non-technical title with many AI keywords",
+      "AI skills claimed without matching AI/ML career history",
+      "AI appears to be recent learning rather than production experience"
+    ],
+    "n_skills": 18
+  },
+  {
+    "candidate_id": "CAND_0000211",
+    "title": "Operations Manager",
+    "yoe": 5.0,
+    "fraud_score": 0.75,
+    "flags": [
+      "Non-technical title with many AI keywords",
+      "AI skills claimed without matching AI/ML career history",
+      "AI appears to be recent learning rather than production experience"
+    ],
+    "n_skills": 16
+  },
+  {
+    "candidate_id": "CAND_0000212",
+    "title": "Customer Support",
+    "yoe": 13.0,
+    "fraud_score": 1.0,
+    "flags": [
+      "AI keyword-heavy skills on non-technical current title",
+      "Non-technical title with many AI keywords",
+      "AI skills claimed without matching AI/ML career history"
+    ],
+    "n_skills": 22
+  },
+  {
+    "candidate_id": "CAND_0000220",
+    "title": "Marketing Manager",
+    "yoe": 10.9,
+    "fraud_score": 0.75,
+    "flags": [
+      "Non-technical title with many AI keywords",
+      "AI skills claimed without matching AI/ML career history",
+      "AI appears to be recent learning rather than production experience"
+    ],
+    "n_skills": 18
+  },
+  {
+    "candidate_id": "CAND_0000312",
+    "title": "Content Writer",
+    "yoe": 11.5,
+    "fraud_score": 1.0,
+    "flags": [
+      "AI keyword-heavy skills on non-technical current title",
+      "Non-technical title with many AI keywords",
+      "AI skills claimed without matching AI/ML career history"
+    ],
+    "n_skills": 20
+  },
+  {
+    "candidate_id": "CAND_0000322",
+    "title": "HR Manager",
+    "yoe": 12.0,
+    "fraud_score": 0.75,
+    "flags": [
+      "Non-technical title with many AI keywords",
+      "AI skills claimed without matching AI/ML career history",
+      "AI appears to be recent learning rather than production experience"
+    ],
+    "n_skills": 14
+  },
+  {
+    "candidate_id": "CAND_0000329",
+    "title": "Sales Executive",
+    "yoe": 1.9,
+    "fraud_score": 0.63,
+    "flags": [
+      "No verification signals (email/phone/LinkedIn all unverified)",
+      "Non-technical profile with AI-learning language",
+      "Entire career at pure consulting firms (explicit JD disqualifier)"
+    ],
+    "n_skills": 6
+  },
+  {
+    "candidate_id": "CAND_0000388",
+    "title": "HR Manager",
+    "yoe": 6.0,
+    "fraud_score": 0.75,
+    "flags": [
+      "Non-technical title with many AI keywords",
+      "AI skills claimed without matching AI/ML career history",
+      "AI appears to be recent learning rather than production experience"
+    ],
+    "n_skills": 16
+  },
+  {
+    "candidate_id": "CAND_0000389",
+    "title": "Operations Manager",
+    "yoe": 5.4,
+    "fraud_score": 0.75,
+    "flags": [
+      "Non-technical title with many AI keywords",
+      "AI skills claimed without matching AI/ML career history",
+      "AI appears to be recent learning rather than production experience"
+    ],
+    "n_skills": 17
+  },
+  {
+    "candidate_id": "CAND_0000399",
+    "title": "Business Analyst",
+    "yoe": 12.9,
+    "fraud_score": 0.73,
+    "flags": [
+      "AI keyword-heavy skills on non-technical current title",
+      "AI skills claimed without matching AI/ML career history",
+      "AI appears to be recent learning rather than production experience"
+    ],
+    "n_skills": 20
+  },
+  {
+    "candidate_id": "CAND_0000410",
+    "title": "Graphic Designer",
+    "yoe": 10.1,
+    "fraud_score": 0.85,
+    "flags": [
+      "Non-technical title with many AI keywords",
+      "AI skills claimed without matching AI/ML career history",
+      "AI appears to be recent learning rather than production experience"
+    ],
+    "n_skills": 14
+  },
+  {
+    "candidate_id": "CAND_0000421",
+    "title": "Graphic Designer",
+    "yoe": 4.5,
+    "fraud_score": 0.75,
+    "flags": [
+      "Non-technical title with many AI keywords",
+      "AI skills claimed without matching AI/ML career history",
+      "AI appears to be recent learning rather than production experience"
+    ],
+    "n_skills": 15
+  }
+]

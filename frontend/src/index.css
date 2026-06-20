@@ -770,9 +770,199 @@ body::before {
 }
 
 /* ============================================================
+   WHY NOT #1 PANEL
+   ============================================================ */
+.delta-panel {
+  background: rgba(245,158,11,0.06);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+}
+
+.delta-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--amber);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.delta-row {
+  display: grid;
+  grid-template-columns: 130px 1fr 80px 80px 24px;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 0.82rem;
+}
+
+.delta-row:last-child { border-bottom: none; }
+
+.delta-label { color: var(--text-2); }
+
+.delta-bar-wrap {
+  position: relative;
+  height: 5px;
+  background: var(--surface-3);
+  border-radius: 99px;
+  overflow: visible;
+}
+
+.delta-bar-fill {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.delta-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  text-align: right;
+}
+
+.delta-diff {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  text-align: right;
+}
+
+/* ============================================================
+   FRAUD TAB
+   ============================================================ */
+.fraud-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.fraud-stat-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  text-align: center;
+}
+
+.fraud-stat-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 4px;
+}
+
+.fraud-stat-label {
+  font-size: 0.75rem;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.fraud-rules-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.fraud-rule-pill {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  color: var(--text-2);
+}
+
+.fraud-rule-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--red);
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.fraud-card {
+  background: var(--surface-2);
+  border: 1px solid rgba(244,63,94,0.2);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 10px;
+}
+
+.fraud-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.fraud-title { font-weight: 600; font-size: 0.9rem; }
+.fraud-score-badge {
+  background: var(--red-dim);
+  border: 1px solid rgba(244,63,94,0.3);
+  color: var(--red);
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.fraud-flags { display: flex; flex-direction: column; gap: 4px; }
+.fraud-flag {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--text-2);
+}
+
+/* ============================================================
+   EXPORT BUTTON
+   ============================================================ */
+.export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-2);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.export-btn:hover {
+  border-color: var(--border-hover);
+  color: var(--text);
+  background: var(--surface-3);
+}
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 900px) {
   .layout { grid-template-columns: 260px 1fr; }
   .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .fraud-stats-row { grid-template-columns: repeat(2, 1fr); }
+  .fraud-rules-grid { grid-template-columns: 1fr; }
 }
+

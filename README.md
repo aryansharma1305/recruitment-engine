@@ -1,5 +1,12 @@
 # Recruitment Intelligence Platform
 
+![Python](https://img.shields.io/badge/Python-3.10-3776AB?style=flat-square&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.110-009688?style=flat-square&logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=flat-square&logo=vite&logoColor=white)
+![BGE](https://img.shields.io/badge/Embeddings-BGE--large-FF6B35?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
+
 An AI-powered candidate discovery and ranking engine — built for the Redrob Intelligent Candidate Discovery Challenge and extended into a full recruiter-facing SaaS product.
 
 The system ranks candidates the way a great recruiter would: by reading actual career history, finding evidence of shipped production systems, and rejecting keyword stuffers and honeypots — not by counting keywords.

@@ -1,0 +1,65 @@
+# Submission Metadata — India Runs Data & AI Challenge
+
+challenge_name: "India Runs Data & AI Challenge"
+submission_track: "Intelligent Candidate Discovery"
+target_role: "Senior AI Engineer"
+
+team:
+  name: "Recruitment Intelligence"
+  members:
+    - name: "Aryan Sharma"
+      role: "Lead Engineer"
+
+approach_summary: >
+  A deterministic, locally-reproducible hybrid ranking pipeline that scores 100,000+
+  candidate profiles across 11 structured signals — skill capability buckets,
+  career relevance, shipped-system evidence, applied ML years, behavioral signals,
+  fraud detection, and local semantic similarity via BGE sentence-transformer embeddings.
+  No hosted vector database. No hosted LLM dependency in the ranking path.
+  Every ranking decision is explainable from structured evidence in the output.
+
+tech_stack:
+  language: Python 3.10
+  ml_framework: sentence-transformers (BGE-large-en-v1.5)
+  semantic_backend: "Local TF-IDF (default) / Local BGE embeddings (optional)"
+  vector_database: "None — fully local"
+  llm_dependency: "None in ranking path. Optional OpenRouter for LLM explanations only."
+  frontend: "React 18 + Vite 8 (static dashboard)"
+  api_server: "FastAPI + Uvicorn"
+
+pipeline_stages:
+  1: "Candidate loading — streaming JSONL parser"
+  2: "Fraud / honeypot detection — 14 rules, penalty scoring"
+  3: "Feature extraction — 11 signal components"
+  4: "Semantic scoring — local BGE or TF-IDF vs JD embed text"
+  5: "Hybrid ranking — weighted score + seniority bonuses + fit penalty"
+  6: "Explanation generation — structured evidence → reasoning text"
+
+key_design_decisions:
+  - "Proof-first over claims: career history weighted more than keyword density"
+  - "Fraud detection runs BEFORE scoring to prevent polluting the ranked pool"
+  - "No hosted APIs in the deterministic ranking path — fully reproducible"
+  - "JD parser is dynamic — works for any role, not just this challenge"
+  - "Frontend is a full recruiter SaaS demo, not just a results viewer"
+
+fraud_detection_stats:
+  total_candidates: 100000
+  flagged_and_removed: 4182
+  fraud_rate: "4.18%"
+  rules_applied: 14
+
+benchmark:
+  runtime_seconds: 156.7
+  output_rows: 100
+  validator_result: "Submission is valid."
+
+submission_files:
+  ranked_csv: "output/submission.csv"
+  source_code: "https://github.com/aryansharma1305/recruitment-engine"
+  dashboard: "frontend/ (run: cd frontend && npm install && npm run dev)"
+
+ai_tool_disclosure: >
+  AI assistance (Google Antigravity / Gemini) was used for architecture discussion,
+  code review, and refactoring during development. No candidate data was sent to
+  any hosted LLM during the deterministic ranking phase. All scoring logic,
+  fraud detection rules, and feature weights were designed and validated manually.
